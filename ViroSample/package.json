@@ -11,7 +11,8 @@
     "react": "16.6.1",
     "react-native": "0.57.7",
     "react-viro": "2.13.0",
-    "rxjs": "^6.4.0"
+    "rxjs": "^6.4.0",
+    "socket.io-client": "^2.2.0"
   },
   "devDependencies": {
     "babel-jest": "24.1.0",

@@ -6,12 +6,37 @@ import {
   ViroText
 } from "react-viro";
 
-import  { from } from 'rxjs';
+import  { from, Observable } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
+import { webSocket } from "rxjs/webSocket";
+import io from "socket.io-client";
 
-// This is fromPromise
+class ScoreDataService {
+  url = "https://ws-api.iextrading.com/1.0";
+  socket;
+
+  sendMessage(message) {
+    this.socket.emit("add-message", message);
+  }
+
+  getMessages() {
+    const observable = new Observable(observer => {
+      this.socket = io(this.url);
+      this.socket.on("message", data => {
+        observer.next(data);
+      });
+      return () => {
+        this.socket.disconnect();
+      };
+    });
+    return observable;
+  }
+}
+
+
 const api = {
-  getData$: from(fetch("https://launchlibrary.net/1.3/launch/next/25"))
+  fetchData$: from(fetch("https://launchlibrary.net/1.3/launch/next/25")), // This is fromPromise
+  socketData$: webSocket("ws://demos.kaazing.com/echo")
 }
 
 class HelloWorldSceneAR extends Component {
@@ -21,16 +46,31 @@ class HelloWorldSceneAR extends Component {
       text: "initializing AR...",
       fetchedData: []
     };
+
+    this.scoreDataService = new ScoreDataService();
   }
 
   componentDidMount() {
-    this.subscription$ = api.getData$.pipe(
+    // REST API
+    this.subscription$ = api.fetchData$.pipe(
       flatMap(fetchResponse => fetchResponse.json())
     ).subscribe(value => {
       this.setState({
         fetchedData: value.launches
       })
     })
+
+    // API data
+    // api.socketData$.subscribe(
+    //   msg => {
+    //     console.log('message received: ', msg); // Called whenever there is a message from the server.
+    //   }
+    // );
+    this.scoreDataService.getMessages().subscribe(
+      value => {
+        console.log(value);
+      }
+    )
   }
 
   componentWillUnmount() {
