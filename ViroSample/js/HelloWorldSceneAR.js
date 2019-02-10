@@ -2,9 +2,7 @@
 import React, { Component } from "react";
 import { StyleSheet } from "react-native";
 import {
-  Viro3DObject,
   ViroAmbientLight,
-  ViroARPlaneSelector,
   ViroARScene,
   ViroSpotLight,
   ViroText
@@ -30,16 +28,13 @@ class HelloWorldSceneAR extends Component {
     clearInterval(this.interval);
   }
 
-  handleTrackingInitialized = () => {
+  handleTrackingUpdated = () => {
     this.setState({ text: "Hacking the Solar System!" });
-    console.log(this.setState);
-  }
+  };
 
   render() {
     return (
-      <ViroARScene
-        onTrackingInitialized={this.handleTrackingInitialized}
-      >
+      <ViroARScene onTrackingUpdated={this.handleTrackingUpdated}>
         <ViroText
           text={`${this.state.count} planets, ${this.state.text}`}
           scale={[0.1, 0.1, 0.1]}
@@ -57,14 +52,6 @@ class HelloWorldSceneAR extends Component {
           style={styles.helloWorldTextStyle}
         />
         <ViroAmbientLight color={"#aaaaaa"} />
-        <ViroSpotLight
-          innerAngle={5}
-          outerAngle={90}
-          direction={[0, -1, -0.2]}
-          position={[0, 3, 1]}
-          color="#ffffff"
-          castsShadow={true}
-        />
       </ViroARScene>
     );
   }
