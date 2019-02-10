@@ -6,38 +6,40 @@ import {
   ViroText
 } from "react-viro";
 
-import  { from, Observable } from 'rxjs';
+import  { Observable, interval } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
 import { webSocket } from "rxjs/webSocket";
 import io from "socket.io-client";
 
-class ScoreDataService {
-  url = "https://ws-api.iextrading.com/1.0";
-  socket;
+// Unused Websockets Code
+// class ScoreDataService {
+//   url = "https://ws-api.iextrading.com/1.0";
+//   socket;
 
-  sendMessage(message) {
-    this.socket.emit("add-message", message);
-  }
+//   sendMessage(message) {
+//     this.socket.emit("add-message", message);
+//   }
 
-  getMessages() {
-    const observable = new Observable(observer => {
-      this.socket = io(this.url);
-      this.socket.on("message", data => {
-        observer.next(data);
-      });
-      return () => {
-        this.socket.disconnect();
-      };
-    });
-    return observable;
-  }
-}
+//   getMessages() {
+//     const observable = new Observable(observer => {
+//       this.socket = io(this.url);
+//       this.socket.on("message", data => {
+//         observer.next(data);
+//       });
+//       return () => {
+//         this.socket.disconnect();
+//       };
+//     });
+//     return observable;
+//   }
+// }
 
+// const api = {
+//   // fetchData$: from(), // This is fromPromise
+//   socketData$: webSocket("ws://demos.kaazing.com/echo")
+// }
 
-const api = {
-  fetchData$: from(fetch("https://launchlibrary.net/1.3/launch/next/25")), // This is fromPromise
-  socketData$: webSocket("ws://demos.kaazing.com/echo")
-}
+const API_URL = "https://launchlibrary.net/1.3/launch/next/25";
 
 class HelloWorldSceneAR extends Component {
   constructor(props) {
@@ -52,8 +54,9 @@ class HelloWorldSceneAR extends Component {
 
   componentDidMount() {
     // REST API
-    this.subscription$ = api.fetchData$.pipe(
-      flatMap(fetchResponse => fetchResponse.json())
+    this.subscription$ = interval(2000).pipe(
+      flatMap(() => fetch(API_URL)),
+      flatMap(response => response.json())
     ).subscribe(value => {
       this.setState({
         fetchedData: value.launches
@@ -66,11 +69,11 @@ class HelloWorldSceneAR extends Component {
     //     console.log('message received: ', msg); // Called whenever there is a message from the server.
     //   }
     // );
-    this.scoreDataService.getMessages().subscribe(
-      value => {
-        console.log(value);
-      }
-    )
+    // this.scoreDataService.getMessages().subscribe(
+    //   value => {
+    //     console.log(value);
+    //   }
+    // )
   }
 
   componentWillUnmount() {
