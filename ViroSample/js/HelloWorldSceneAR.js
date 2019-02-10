@@ -49,7 +49,8 @@ class HelloWorldSceneAR extends Component {
       fetchedData: []
     };
 
-    this.scoreDataService = new ScoreDataService();
+    console.log(props.sceneNavigator.viroAppProps);
+    // this.scoreDataService = new ScoreDataService();
   }
 
   componentDidMount() {

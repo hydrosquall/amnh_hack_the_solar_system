@@ -26,12 +26,18 @@ var AR_NAVIGATOR_TYPE = "AR";
 // be presented with a choice of AR or VR. By default, we offer the user a choice.
 var defaultNavigatorType = UNSET;
 
+const COLORS = { // enum
+  A: 'A',
+  B: 'B'
+}
+
 export default class ViroSample extends Component {
   constructor() {
     super();
 
     this.state = {
       navigatorType : defaultNavigatorType,
+      color: COLORS.A, // default color
       sharedProps : sharedProps
     }
     this._getExperienceSelector = this._getExperienceSelector.bind(this);
@@ -52,40 +58,38 @@ export default class ViroSample extends Component {
 
   // Presents the user with a choice of an AR or VR experience
   _getExperienceSelector() {
-    return (
-      <View style={localStyles.outer} >
-        <View style={localStyles.inner} >
+    return <View style={localStyles.outer}>
+        <View style={localStyles.inner}>
+          <Text style={localStyles.titleText}>Pick your star color!</Text>
 
-          <Text style={localStyles.titleText}>
-            Choose your desired experience:
-          </Text>
-
-          <TouchableHighlight style={localStyles.buttons}
-            onPress={this._getExperienceButtonOnPress(AR_NAVIGATOR_TYPE)}
-            underlayColor={'#68a0ff'} >
-
-            <Text style={localStyles.buttonText}>AR</Text>
+          <TouchableHighlight style={localStyles.buttons} onPress={this._getExperienceButtonOnPress(AR_NAVIGATOR_TYPE, COLORS.A)} underlayColor={"#68a0ff"}>
+            <Text style={localStyles.buttonText}>{COLORS.A}</Text>
+          </TouchableHighlight>
+          <TouchableHighlight style={localStyles.buttons} onPress={this._getExperienceButtonOnPress(AR_NAVIGATOR_TYPE, COLORS.B)} underlayColor={"#68a0ff"}>
+            <Text style={localStyles.buttonText}>{COLORS.B}</Text>
           </TouchableHighlight>
 
         </View>
-      </View>
-    );
+      </View>;
   }
 
   // Returns the ViroARSceneNavigator which will start the AR experience
   _getARNavigator() {
     return (
       <ViroARSceneNavigator {...this.state.sharedProps}
-        initialScene={{scene: InitialARScene}} />
+        initialScene={{scene: InitialARScene}}
+        viroAppProps={{ color: this.state.color }}
+        />
     );
   }
 
   // This function returns an anonymous/lambda function to be used
   // by the experience selector buttons
-  _getExperienceButtonOnPress(navigatorType) {
+  _getExperienceButtonOnPress(navigatorType, color) {
     return () => {
       this.setState({
-        navigatorType : navigatorType
+        navigatorType : navigatorType,
+        color
       })
     }
   }
