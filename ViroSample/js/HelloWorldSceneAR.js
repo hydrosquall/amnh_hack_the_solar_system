@@ -1,31 +1,40 @@
-"use strict";
 import React, { Component } from "react";
 import { StyleSheet } from "react-native";
 import {
   ViroAmbientLight,
   ViroARScene,
-  ViroSpotLight,
   ViroText
 } from "react-viro";
+
+import  { from } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
+
+// This is fromPromise
+const api = {
+  getData$: from(fetch("https://launchlibrary.net/1.3/launch/next/25"))
+}
 
 class HelloWorldSceneAR extends Component {
   constructor(props) {
     super(props);
     this.state = {
       text: "initializing AR...",
-      count: 0
+      fetchedData: []
     };
   }
 
   componentDidMount() {
-    this.interval = setInterval(
-      () => this.setState({ count: this.state.count + 1 }),
-      1000
-    );
+    this.subscription$ = api.getData$.pipe(
+      flatMap(fetchResponse => fetchResponse.json())
+    ).subscribe(value => {
+      this.setState({
+        fetchedData: value.launches
+      })
+    })
   }
 
   componentWillUnmount() {
-    clearInterval(this.interval);
+    this.subscription.unsubscribe();
   }
 
   handleTrackingUpdated = () => {
@@ -33,13 +42,16 @@ class HelloWorldSceneAR extends Component {
   };
 
   render() {
+    const { fetchedData } = this.state;
+    const numRockets = fetchedData.length;
+
     return (
       <ViroARScene onTrackingUpdated={this.handleTrackingUpdated}>
         <ViroText
-          text={`${this.state.count} planets, ${this.state.text}`}
+          text={`Data on ${numRockets} planets`}
           scale={[0.1, 0.1, 0.1]}
           height={1}
-          width={4}
+          width={8}
           position={[0, 0.5, -1]}
           style={styles.helloWorldTextStyle}
         />
@@ -59,7 +71,7 @@ class HelloWorldSceneAR extends Component {
 
 export default HelloWorldSceneAR;
 
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
   helloWorldTextStyle: {
     fontFamily: "Arial",
     fontSize: 50,
